@@ -21,3 +21,11 @@ rm -rf node_modules
 npm install
 npm-freeze check
 ```
+
+## Screenshots
+
+### Default options
+![jsverify default](https://raw.githubusercontent.com/phadej/npm-freeze/master/screenshots/patch.png)
+
+### --minor
+![jsverify minor](https://raw.githubusercontent.com/phadej/npm-freeze/master/screenshots/minor.png)
