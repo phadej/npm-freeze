@@ -22,6 +22,42 @@ describe("diffZero", function () {
     }));
   });
 
+  it("returns true when level is 'major' if versions differ only in minor", function () {
+    var actual = npmFreeze.diffZero({
+      versions: ["0.1.0", "0.2.0"],
+      dependencies: {},
+    }, "major");
+
+    chai.expect(actual).to.equal(true);
+  });
+
+  it("returns false when level is 'major' if versions differ only in major", function () {
+    var actual = npmFreeze.diffZero({
+      versions: ["1.0.0", "2.0.0"],
+      dependencies: {},
+    }, "major");
+
+    chai.expect(actual).to.equal(false);
+  });
+
+  it("returns true when level is 'minor' if versions differ only in patch", function () {
+    var actual = npmFreeze.diffZero({
+      versions: ["0.0.0", "0.0.1"],
+      dependencies: {},
+    }, "minor");
+
+    chai.expect(actual).to.equal(true);
+  });
+
+  it("returns false when level is 'minor' if versions differ only in minor", function () {
+    var actual = npmFreeze.diffZero({
+      versions: ["0.1.0", "0.2.0"],
+      dependencies: {},
+    }, "minor");
+
+    chai.expect(actual).to.equal(false);
+  });
+
   it("returns false if some dependencies differ", function () {
     assert(!npmFreeze.diffZero({
       versions: ["0.0.0", "0.0.0"],
@@ -32,6 +68,34 @@ describe("diffZero", function () {
         },
       },
     }));
+  });
+
+  it("level minor: returns true if all dependencies differ only in patch", function () {
+    var actual = npmFreeze.diffZero({
+      versions: ["0.0.0", "0.0.0"],
+      dependencies: {
+        "foo": {
+          versions: ["0.0.0", "0.0.1"],
+          dependencies: {},
+        },
+      },
+    }, "minor");
+
+    chai.expect(actual).to.equal(true);
+  });
+
+  it("level minor: returns false if all dependencies differ only in minor too", function () {
+    var actual = npmFreeze.diffZero({
+      versions: ["0.0.0", "0.0.0"],
+      dependencies: {
+        "foo": {
+          versions: ["0.1.0", "0.2.0"],
+          dependencies: {},
+        },
+      },
+    }, "minor");
+
+    chai.expect(actual).to.equal(false);
   });
 
   it("returns true for identical objects", function () {
@@ -96,5 +160,23 @@ describe("calculateDiff", function () {
       },
     };
     chai.expect(actual).to.deep.equal(expected);
+  });
+});
+
+describe("symSemverDiff", function () {
+  it("returns major if first version is majorly larger", function () {
+    chai.expect(npmFreeze.symSemverDiff("2.0.0", "1.0.0")).to.equal("major");
+  });
+  it("returns minor if first version is minorly larger", function () {
+    chai.expect(npmFreeze.symSemverDiff("1.1.0", "1.0.0")).to.equal("minor");
+  });
+  it("returns patch if first version is patchly larger", function () {
+    chai.expect(npmFreeze.symSemverDiff("1.0.1", "1.0.0")).to.equal("patch");
+  });
+  it("returns 'major' if the first one is falsy", function () {
+    chai.expect(npmFreeze.symSemverDiff("", "1.0.0")).to.equal("major");
+  });
+  it("returns 'major' if the second one is falsy", function () {
+    chai.expect(npmFreeze.symSemverDiff("1.0.0", "")).to.equal("major");
   });
 });

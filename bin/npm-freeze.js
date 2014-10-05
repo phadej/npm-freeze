@@ -46,17 +46,33 @@ function traverseDependencies(p) {
   };
 }
 
-function printDiff(diff, pkg, indent) {
+var colors = {
+  major: "red",
+  minor: "yellow",
+  patch: "cyan",
+  build: "magenta",
+};
+
+function printDiff(diff, pkg, indent, verbose, level) {
   var aVersion = diff.versions[0];
   var bVersion = diff.versions[1];
   if (aVersion !== bVersion) {
-    console.log(utils.indentBlock(indent), pkg, chalk.red(aVersion + " -> " + bVersion));
-  } else if (!utils.diffZero(diff)) {
-    console.log(utils.indentBlock(indent), pkg, aVersion);
+    var diffLevel = utils.symSemverDiff(aVersion, bVersion);
+    var print;
+    switch (level) {
+      case "major": print = diffLevel === "major"; break;
+      case "minor": print = diffLevel === "major" || diffLevel === "minor"; break;
+      default: print = !diffLevel;
+    }
+    if (print || !utils.diffZero(diff, level)) {
+      console.log(utils.indentBlock(indent) + pkg, chalk[colors[diffLevel]](aVersion + " -> " + bVersion));
+    }
+  } else if (verbose || !utils.diffZero(diff, level)) {
+    console.log(utils.indentBlock(indent) + pkg, chalk.grey(aVersion));
   }
 
   _.each(diff.dependencies, function (depDiff, subpkg) {
-    printDiff(depDiff, subpkg, indent + 1);
+    printDiff(depDiff, subpkg, indent + 1, verbose, level);
   });
 }
 
@@ -87,17 +103,30 @@ program
 program
   .command("check")
   .description("check that installed dependencies are according to manifest")
-  .action(function () {
+  .option("-v, --verbose", "More verbose output")
+  .option("--major", "Show only major differences")
+  .option("--minor", "Show only minor differences")
+  .action(function (args) {
     var manifest = JSON.parse(fs.readFileSync(MANIFEST_FILE, "utf-8"));
     var dependencies = traverseDependencies(".");
     if (_.isEqual(manifest, dependencies)) {
       console.log(chalk.green("OK"));
     } else {
       console.log(chalk.red("There are differing versions installed"));
+      var level;
+      if (args.minor) { level = "minor"; }
+      if (args.major) { level = "major"; }
       var diff = utils.calculateDiff(manifest, dependencies);
-      printDiff(diff, rootPackageName(), 0);
+      printDiff(diff, rootPackageName(), 0, args.verbose, level);
       process.exit(1);
     }
+  });
+
+program
+  .command("*")
+  .description("Print help")
+  .action(function () {
+    console.log(program.help());
   });
 
 program.parse(process.argv);

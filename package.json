@@ -34,7 +34,8 @@
   "dependencies": {
     "chalk": "^0.5.1",
     "commander": "^2.3.0",
-    "lodash": "^2.4.1"
+    "lodash": "^2.4.1",
+    "semver-diff": "^2.0.0"
   },
   "engines": {
     "node": ">= 0.10.0"
