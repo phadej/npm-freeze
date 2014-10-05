@@ -1,6 +1,6 @@
 all : test
 
-.PHONY : all test jshint mocha istanbul david dist
+.PHONY : all test jshint mocha istanbul david npm-freeze dist
 
 BINDIR=node_modules/.bin
 
@@ -9,10 +9,11 @@ ISTANBUL=$(BINDIR)/istanbul
 JSHINT=$(BINDIR)/jshint
 JSCS=$(BINDIR)/jscs
 DAVID=$(BINDIR)/david
+NPMFREEZE=node bin/npm-freeze.js
 
 SRC=bin/npm-freeze.js lib/npm-freeze.js test/npm-freeze.js
 
-test : jshint jscs mocha istanbul david
+test : jshint jscs mocha istanbul david npm-freeze
 
 jshint :
 	$(JSHINT) $(SRC)
@@ -29,6 +30,9 @@ istanbul :
 
 david :
 	$(DAVID)
+
+npm-freeze:
+	$(NPMFREEZE) check || true
 
 dist : test
 	git clean -fdx -e node_modules
