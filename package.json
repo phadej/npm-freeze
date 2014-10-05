@@ -1,0 +1,51 @@
+{
+  "name": "npm-freeze",
+  "version": "0.1.0",
+  "description": "Freeze the npm dependencies",
+  "main": "index.js",
+  "bin": {
+    "npm-freeze": "bin/npm-freeze.js"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:phadej/npm-freeze.git"
+  },
+  "keywords": [
+    "npm"
+  ],
+  "author": {
+    "name": "Oleg Grenrus",
+    "email": "oleg.grenrus@iki.fi",
+    "url": "http://oleg.fi/"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/phadej/npm-freeze/blob/master/LICENSE"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/phadej/npm-freeze/issues"
+  },
+  "homepage": "https://github.com/phadej/npm-freeze",
+  "dependencies": {
+    "chalk": "^0.5.1",
+    "commander": "^2.3.0",
+    "lodash": "^2.4.1"
+  },
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "devDependencies": {
+    "chai": "^1.9.2",
+    "david": "^5.0.0",
+    "istanbul": "^0.3.2",
+    "jscs": "^1.6.2",
+    "jshint": "^2.5.6",
+    "jsverify": "^0.4.0-alpha2",
+    "mocha": "^1.21.4"
+  }
+}
