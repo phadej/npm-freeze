@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 "use strict";
 
 var MANIFEST_FILE = "npm-freeze-manifest.json";
