@@ -1,6 +1,6 @@
 {
   "name": "npm-freeze",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Freeze the npm dependencies",
   "main": "index.js",
   "bin": {
