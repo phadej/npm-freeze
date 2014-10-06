@@ -9,41 +9,14 @@ var fs = require("fs");
 var path = require("path");
 var program = require("commander");
 var utils = require("../lib/npm-freeze.js");
+var npmTraverse = require("../lib/npm-traverse.js");
 
 var version = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "package.json"), "utf-8")).version;
 
-function getPkgInfo(p) {
-  try {
-    return JSON.parse(fs.readFileSync(path.join(p, "package.json"), "utf-8"));
-  } catch (e) {
-    return undefined;
-  }
-}
-
-function traverseDependencies(p) {
-  var pkgInfo = getPkgInfo(p);
-  if (!pkgInfo) {
-    return {};
-  }
-
-  var vers = pkgInfo.version;
-  var deps;
-  try {
-    deps = _.filter(fs.readdirSync(path.join(p, "node_modules")), function (dep) {
-      return dep !== ".bin";
-    });
-  } catch (e) {
-    deps = [];
-  }
-
-  var rec = _.zipObject(_.map(deps, function (dep) {
-    return [dep, traverseDependencies(path.join(p, "node_modules", dep))];
-  }));
-
-  return {
-    version: vers,
-    dependencies: rec,
-  };
+function traverseDependencies() {
+  return npmTraverse.traverseDependencies(function (pkgInfo) {
+    return { version: pkgInfo.version };
+  });
 }
 
 var colors = {
@@ -51,6 +24,7 @@ var colors = {
   minor: "yellow",
   patch: "cyan",
   build: "magenta",
+  prerelease: "magenta",
 };
 
 function printDiff(diff, pkg, indent, verbose, level) {
@@ -91,9 +65,9 @@ program
   .command("manifest")
   .description("generate manifest from installed node_modules tree")
   .action(function () {
-    var dependencies = traverseDependencies(".");
-    var json = JSON.stringify(dependencies, null, 2);
     if (!fs.existsSync(MANIFEST_FILE)) {
+      var dependencies = traverseDependencies();
+      var json = JSON.stringify(dependencies, null, 2);
       fs.writeFile(MANIFEST_FILE, json);
     } else {
       console.error(MANIFEST_FILE + " already exists");
@@ -108,7 +82,7 @@ program
   .option("--minor", "Show only minor differences")
   .action(function (args) {
     var manifest = JSON.parse(fs.readFileSync(MANIFEST_FILE, "utf-8"));
-    var dependencies = traverseDependencies(".");
+    var dependencies = traverseDependencies();
     if (_.isEqual(manifest, dependencies)) {
       console.log(chalk.green("OK"));
     } else {

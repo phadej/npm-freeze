@@ -9,9 +9,9 @@ ISTANBUL=$(BINDIR)/istanbul
 JSHINT=$(BINDIR)/jshint
 JSCS=$(BINDIR)/jscs
 DAVID=$(BINDIR)/david
-NPMFREEZE=node bin/npm-freeze.js
+NPMFREEZE=node bin/npm-freeze
 
-SRC=bin/npm-freeze.js lib/npm-freeze.js test/npm-freeze.js
+SRC=bin/npm-freeze.js lib/npm-freeze.js test/npm-freeze.js lib/npm-traverse.js
 
 test : jshint jscs mocha istanbul david npm-freeze
 
