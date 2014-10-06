@@ -1,4 +1,5 @@
 /* global describe:true, it:true */
+"use strict";
 
 var npmFreeze = require("../lib/npm-freeze.js");
 var jsc = require("jsverify");

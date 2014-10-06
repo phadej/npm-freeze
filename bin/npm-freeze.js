@@ -10,6 +10,7 @@ var path = require("path");
 var program = require("commander");
 var utils = require("../lib/npm-freeze.js");
 var npmTraverse = require("../lib/npm-traverse.js");
+var npmLicenseCheck = require("../lib/npm-license-check.js");
 
 var version = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "package.json"), "utf-8")).version;
 
@@ -94,6 +95,63 @@ program
       printDiff(diff, rootPackageName(), 0, args.verbose, level);
       process.exit(1);
     }
+  });
+
+function printLicenses(licenses, pkg, indent) {
+  if (licenses.marked !== true) {
+    var color = _.contains(licenses.licenses, "UNKNOWN") ? "red" : "grey";
+    console.log(utils.indentBlock(indent) + pkg, chalk[color](licenses.licenses.join(", ")));
+  }
+
+  _.each(licenses.dependencies, function (subLicenses, subPkg) {
+    printLicenses(subLicenses, subPkg, indent + 1);
+  });
+}
+
+program
+  .command("license-show")
+  .description("traverse license information")
+  .option("--no-mit", "Skip MIT license")
+  .option("--no-bsd", "Skip BSD licenses")
+  .option("--no-isc", "Skip ISC license")
+  .option("--no-apache", "Skip Apache licenses")
+  .option("--no-permissive", "Skip MIT, BSD, ISC and Apache licenses")
+  .option("--no-wtfpl", "Skip WTFPL license")
+  .option("--no-file-guess", "Don't try to guess the license from files in the package")
+  .action(function (args) {
+    var skipLicenses = [];
+    if (!args.mit || !args.permissive) {
+      skipLicenses.push("MIT");
+    }
+    if (!args.bsd || !args.permissive) {
+      skipLicenses.push("BSD");
+      skipLicenses.push("BSD-2-Clause");
+      skipLicenses.push("BSD-3-Clause");
+    }
+    if (!args.isc || !args.permissive) {
+      skipLicenses.push("ISC");
+    }
+    if (!args.apache || !args.permissive) {
+      skipLicenses.push("Apache-2.0");
+    }
+    if (!args.wtfpl) {
+      skipLicenses.push("WTFPL");
+    }
+
+    var licenses = npmTraverse.traverseDependencies(function (pkgInfo, p) {
+      return npmLicenseCheck.guessLicenses(pkgInfo, args.fileGuess ? p : undefined);
+    });
+    licenses = npmLicenseCheck.markLicenses(licenses, skipLicenses);
+    printLicenses(licenses, rootPackageName(), 0, skipLicenses);
+  });
+
+program
+  .command("license-guess <FILE>")
+  .description("Try to guess license type from file")
+  .action(function (file) {
+    var contents = fs.readFileSync(file, "utf-8");
+    var license = npmLicenseCheck.guessLicenseContents(contents);
+    console.log(license);
   });
 
 program
