@@ -1,5 +1,7 @@
 # npm-freeze
 
+**TL;DR**, you probably want to use [npm shrinkwrap](https://www.npmjs.org/doc/cli/npm-shrinkwrap.html).
+
 > Dump versions of packages in `node_modules/`.
 
 [![Build Status](https://secure.travis-ci.org/phadej/npm-freeze.svg?branch=master)](http://travis-ci.org/phadej/npm-freeze)
