@@ -11,7 +11,7 @@ JSCS=$(BINDIR)/jscs
 DAVID=$(BINDIR)/david
 NPMFREEZE=node bin/npm-freeze
 
-SRC=bin/npm-freeze.js lib/npm-freeze.js test/npm-freeze.js lib/npm-traverse.js
+SRC=bin/npm-freeze.js lib/npm-freeze.js test/npm-freeze.js lib/npm-traverse.js lib/npm-license-check.js test/npm-license-check.js
 
 test : jshint jscs mocha istanbul david npm-freeze
 
